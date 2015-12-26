@@ -1,0 +1,106 @@
+<?php
+//收到文本
+if ($_FILES["file"]["error"] > 0)
+  {
+  echo "Error: " . $_FILES["file"]["error"] . "<br />";
+  }
+else
+  {
+  echo "上传文件名: " . $_FILES["file"]["name"] . "<br />";
+  echo "文件类型: " . $_FILES["file"]["type"] . "<br />";
+  echo "文件大小: " . ($_FILES["file"]["size"] / 1024) . " Kb<br /><hr>";
+  echo "储存位置: " . $_FILES["file"]["tmp_name"]."<br>";
+  }
+  
+  
+  //移动文件 
+ $_FILES['file']['name']= time().$_FILES['file']['name'];
+  if(is_uploaded_file($_FILES['file']['tmp_name'])){
+  move_uploaded_file($_FILES['file']['tmp_name'],$_FILES['file']['name']);
+  echo "成功上传";
+  }
+else{
+
+
+echo "上传失败";}
+//以下为读取内容
+
+
+
+
+
+
+$filename=$_FILES['file']['name'];
+
+
+if(end(explode(".",$filename))=="doc"){
+echo "docwenjian";
+?>
+<?php
+
+
+
+header("Content-type:application/vnd.msword");
+header("Expires:0");
+header("Cache-Control:must-revalidate,post-check=0,pre-check=0");
+header("content-disposition:attachment;filename=sampleword.doc");
+$fp=fopen($filename,r);
+$file=file($fp);
+foreach($file as $k=>$v){
+echo $v;
+}
+
+//以下为你加载doc模块
+}
+else{
+$handle=fopen($filename,"r");
+$conetent=fread($handle,filesize($filename));
+echo $conetent."<br>";
+}
+fclose($handle);
+echo "<hr/>";
+//以下为取出单词模块
+
+$distinct=true;
+
+/*preg_match_all('/([a-zA-Z]+)/',$conetent,$match);
+if($distinct=true)
+{
+$macth=array_unique($macth);
+
+}
+
+*/
+
+preg_match_all('/([a-zA-Z]+)/',$conetent,$match);
+
+$match[1] = array_unique($match[1]);
+   
+sort($match[1]);
+natcasesort($match[1]) ;//判断大小写
+$i=0;
+foreach($match[1] as $key =>$val){
+echo $i."----".$val."<br>";
+$i++;
+}
+echo "<hr/>";
+
+$string=implode("\r\n",$match[1]);
+file_put_contents("copy_".$_FILES['file']['name'], $string);
+$filename="down.php?filename=copy_".$_FILES['file']['name'];
+
+echo "<a href='$filename' >下载修改过的文本</a>";
+?>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>返回文本</title>
+</head>
+
+<body>
+
+</body>
+</html>
